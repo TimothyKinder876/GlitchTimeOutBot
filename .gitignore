@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Local runtime files and editor folders
+# - Ignore VS Code workspace settings and local logs
+.vscode/
+
+#ignore logs
+*.log

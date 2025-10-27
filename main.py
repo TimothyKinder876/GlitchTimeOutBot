@@ -10,7 +10,7 @@ import asyncio
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 
-handler = logging.FileHandler(filename='glitch_delete_bot.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename=os.path.join(os.getcwd(), 'glitchbot.log'),encoding='utf-8',mode='w')
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -19,9 +19,9 @@ intents.moderation = True
 glitchvals = ["glitch", "gl1tch", "gljtch", "glytch", "glftch", "glftch", "glvtch", "glxtch"]
 
 bot = commands.Bot(command_prefix='!', intents=intents)
-logger = logging.getLogger('glitch_delete_bot')
-logging.getLogger('discord').addHandler(handler)
-logging.getLogger('discord').setLevel(logging.DEBUG)
+logger = logging.getLogger('glitchbot')
+logging.getLogger('glitchbot').addHandler(handler)
+logging.getLogger('glitchbot').setLevel(logging.DEBUG)
 
 async def _shutdown_on_enter():
     loop = asyncio.get_running_loop()
@@ -91,4 +91,3 @@ async def on_message_delete(message):
 
 if __name__ == "__main__":
     asyncio.run(main())
-
