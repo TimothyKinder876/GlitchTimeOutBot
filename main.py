@@ -58,7 +58,7 @@ async def on_message(message):
         return
 
     # Delete by exact content
-    if any(word in message.content.lower() for word in glitchvals):
+    if any(word in message.content.lower() for word in glitchvals) and "@" in message.content:
         try:
             await message.delete()
             await timeout_member(message, message.author, 60, reason="Being Fat and Gay")
