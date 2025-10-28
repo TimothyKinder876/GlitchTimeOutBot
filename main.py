@@ -17,6 +17,8 @@ intents.members = True
 intents.moderation = True
 
 glitchvals = ["glitch", "gl1tch", "gljtch", "glytch", "glftch", "glftch", "glvtch", "glxtch"]
+glitchbotnames = ["glitchtimeoutbot", "glitch timeout bot", "glitch_timeout_bot", "glitchbot", "bot"]
+rapemember = "https://cdn.discordapp.com/attachments/1185392185810620469/1432540251515125830/attachment-1-2-1.gif?ex=69016c93&is=69001b13&hm=a1dde9a7ecdd94af4d052a2b4b20c5416bca463ba013eaa069500a958ba4f888&"
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 logger = logging.getLogger('glitchbot')
@@ -62,12 +64,14 @@ async def on_message(message):
         try:
             await message.delete()
             await timeout_member(message, message.author, 60, reason="Being Fat and Gay")
+            await message.channel.send(f"rapemember")
               
             logger.info(f"Deleted message in {message.channel}: {message.content} by {message.author}")
         except discord.Forbidden:
             logger.error(f"Permission error: Cannot delete message in {message.channel}")
         except discord.HTTPException as e:
             logger.error(f"Failed to delete message: {e}")
+
 
     await bot.process_commands(message)
    
@@ -81,7 +85,16 @@ async def on_message(message):
             logger.error(f"Permission error: Cannot delete message in {message.channel}")
         except discord.HTTPException as e:
             logger.error(f"Failed to delete message: {e}")
-   
+
+    if any(word in message.content.lower() for word in glitchbotnames):
+        try: 
+           await message.channel.send(f"{message.author.mention} who hath summoned the powerful and mighty GlitchBot????")
+           logger.info(f"responded to retards in {message.channel}")
+        except discord.Forbidden:
+            logger.error(f"Permission error: Cannot send message in {message.channel}")
+        except discord.HTTPException as e:
+            logger.error(f"Failed to send message: {e}")
+
 
 
 
