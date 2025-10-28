@@ -45,6 +45,10 @@ logging.getLogger('glitchbot').setLevel(logging.DEBUG)
     embed.add_field(name="Game", value= stream["game_name"])
     await interaction.response.send_message(embed=embed)"""
 
+async def rngen():
+    import random
+    return random.randint(1, 6)
+
 async def _shutdown_on_enter():
     loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, input, "Press Enter to shut down the bot...\n")
@@ -79,7 +83,7 @@ async def on_message(message):
         return
 
     # Delete by exact content
-    if any(word in message.content.lower() for word in glitchvals) and "@" in message.content:
+    if any(word in message.content.lower() for word in glitchvals) and "@" in message.content and await rngen() == 1:
         try:
             await message.delete()
             await timeout_member(message, message.author, 60, reason="Being Fat and Gay")
@@ -95,12 +99,12 @@ async def on_message(message):
     await bot.process_commands(message)
    
    #replace fuck
-    if "sex" in message.content.lower() and any(word in message.content.lower() for word in glitchbotnames):
+    if "sex" in message.content.lower() and any(word in message.content.lower() for word in glitchbotnames) and await rngen() == 1:
         await message.channel.send(f"{catgif}")
         await message.channel.send(f"{message.author.mention} No")
         return
 
-    if "fuck" in message.content.lower():
+    if "fuck" in message.content.lower() and await rngen() == 1:
         try:
             await message.delete()
             await message.channel.send(f"{message.author.mention} WE do NOT USE that FUCKING language HERE you FUCKING RETARD.")
@@ -111,16 +115,16 @@ async def on_message(message):
             logger.error(f"Failed to delete message: {e}")
             return
 
-    if any(word in message.content.lower() for word in sixsivens):
+    if any(word in message.content.lower() for word in sixsivens) and await rngen() == 1:
         await message.channel.send(f"{message.author.mention} unfunny moron detected, deploying xk7 approved countermeasures.")
         await message.channel.send(f"{sixsevenresponse}")
         return
 
-    if "clanker" in message.content.lower():
+    if "clanker" in message.content.lower() and await rngen() == 1:
         await message.channel.send(f"{clankerresponse}")
         return
 
-    if message.author.id == krabbyID and any(word in message.content.lower() for word in glitchbotnames):
+    if message.author.id == krabbyID and any(word in message.content.lower() for word in glitchbotnames) and await rngen() == 1:
         now = datetime.now(timezone.utc)
         last = last_response_times.get(message.author.id)
 
@@ -135,7 +139,7 @@ async def on_message(message):
             await message.channel.send(f"Please wait {minutes} more minute(s) before I respond again.")
             return
         
-    if any(word in message.content.lower() for word in glitchbotnames):
+    if any(word in message.content.lower() for word in glitchbotnames) and await rngen() == 1:
         try:
            await message.channel.send(f"{message.author.mention} what do you want.")
            logger.info(f"responded to retards in {message.channel}")
