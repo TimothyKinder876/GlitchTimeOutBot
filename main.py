@@ -25,7 +25,7 @@ illuID = 662719984627089479
 stream_notification_role_id = 1432415114769731587
 streamer_name = "KrabbyPotato76"
 clankerresponse = "https://media.discordapp.net/attachments/1071573041554923689/1073798575445790760/image0-136.gif?ex=6900d89a&is=68ff871a&hm=41e9193d2ad82d7e777962d52fb86cb3990da7c798986aa5bbc2f298c136b5ec&"
-rapemember = "https://cdn.discordapp.com/attachments/1185392185810620469/1432540251515125830/attachment-1-2-1.gif?ex=69016c93&is=69001b13&hm=a1dde9a7ecdd94af4d052a2b4b20c5416bca463ba013eaa069500a958ba4f888&"
+deleteresponse = "https://cdn.discordapp.com/attachments/1185392185810620469/1432540251515125830/attachment-1-2-1.gif?ex=69016c93&is=69001b13&hm=a1dde9a7ecdd94af4d052a2b4b20c5416bca463ba013eaa069500a958ba4f888&"
 sixsevenresponse = "https://cdn.discordapp.com/attachments/727462539935481957/962769524673888326/d65407e9b004361d68c9f7e4dcb037f5a92d4c42b2f5075b48faa8feadf38bd7_1.gif.gif?ex=6901007e&is=68ffaefe&hm=488f3610bd1e5dea598b1cb00f45d99f64559dc70fa25f733e3d4c1e3ec71f42&"
 catgif = "https://tenor.com/view/thousand-yard-stare-cat-gif-10000743455859339871"
 
@@ -43,7 +43,7 @@ logging.getLogger('glitchbot').setLevel(logging.DEBUG)
 
 async def rngen():
     import random
-    return random.randint(1, 6)
+    return random.randint(1, 8)
 
 async def _shutdown_on_enter():
     loop = asyncio.get_running_loop()
@@ -107,7 +107,7 @@ async def on_message(message):
         try:
             await message.delete()
             await timeout_member(message, message.author, 60, reason="Being Fat and Gay")
-            await message.channel.send(f"{rapemember}")
+            await message.channel.send(f"{deleteresponse}")
               
             logger.info(f"Deleted message in {message.channel}: {message.content} by {message.author}")
         except discord.Forbidden:
