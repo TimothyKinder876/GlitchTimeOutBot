@@ -1,17 +1,19 @@
+import asyncio
 import discord
-from email import message
 from discord.ext import commands, tasks
 import logging 
 import os 
+import requests
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
-import asyncio
-#import twitchGet
+import twitchGet
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
+TWITCH_CLIENT_ID = os.getenv('TWITCH_CLIENT_ID')
+TWITCH_CLIENT_SECRET = os.getenv('TWITCH_CLIENT_SECRET')
 
-handler = logging.FileHandler(filename=os.path.join(os.getcwd(), 'glitchbot.log'),encoding='utf-8',mode='w')
+handler = logging.FileHandler(filename=os.path.join(os.getcwd(), 'retardbot.log'),encoding='utf-8',mode='w')
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
@@ -23,23 +25,67 @@ sixsivens = ['67', "sixty seven", "six seven", "sixseven", "six-seven", '6 7', "
 krabbyID = 474632123291140098
 illuID = 662719984627089479
 stream_notification_role_id = 1432415114769731587
-streamer_name = "KrabbyPotato76"
+streamer_name = "krabbypotato76"
 clankerresponse = "https://media.discordapp.net/attachments/1071573041554923689/1073798575445790760/image0-136.gif?ex=6900d89a&is=68ff871a&hm=41e9193d2ad82d7e777962d52fb86cb3990da7c798986aa5bbc2f298c136b5ec&"
 deleteresponse = "https://cdn.discordapp.com/attachments/1185392185810620469/1432540251515125830/attachment-1-2-1.gif?ex=69016c93&is=69001b13&hm=a1dde9a7ecdd94af4d052a2b4b20c5416bca463ba013eaa069500a958ba4f888&"
 sixsevenresponse = "https://cdn.discordapp.com/attachments/727462539935481957/962769524673888326/d65407e9b004361d68c9f7e4dcb037f5a92d4c42b2f5075b48faa8feadf38bd7_1.gif.gif?ex=6901007e&is=68ffaefe&hm=488f3610bd1e5dea598b1cb00f45d99f64559dc70fa25f733e3d4c1e3ec71f42&"
 catgif = "https://tenor.com/view/thousand-yard-stare-cat-gif-10000743455859339871"
 
 GUILD_ID = discord.Object(id=1185392185810620466)
-CHANNEL_ID = 1432559207370068173 #bot commands channel No.
-#1343650469196730429 (stream notis channel No.)
+CHANNEL_ID = 1343650469196730429 #stream notis channel No.
+#CHANNEL_ID = 1432559207370068178 #bot commands channel No.
+
 
 COOLDOWN = timedelta(minutes=10)
 last_response_times = {}
 
-bot = commands.Bot(command_prefix='!', intents=intents)
-logger = logging.getLogger('glitchbot')
-logging.getLogger('glitchbot').addHandler(handler)
-logging.getLogger('glitchbot').setLevel(logging.DEBUG)
+bot = commands.Bot(command_prefix='/', intents=intents)
+logger = logging.getLogger('retardbot')
+logging.getLogger('retardbot').addHandler(handler)
+logging.getLogger('retardbot').setLevel(logging.DEBUG)
+    
+async def streamping(interaction: discord.Interaction, streamer: str):
+    stream = twitchGet.is_streamer_live(streamer)
+    thumbnail = stream["thumbnail_url"].replace("{width}", "800").replace("{height}", "500")
+    embed = discord.Embed(
+        title=f'🟢 {stream["user_name"]} IS LIVE 🟢',
+        description=stream.get("title", ""),
+        url=f'https://twitch.tv/{stream["user_name"].lower()}',
+        color=discord.Color.blurple()
+    )
+    embed.set_thumbnail(url=thumbnail)
+    embed.add_field(name="Game", value=stream.get("game_name", "Unknown"))
+    await interaction.response.send_message(embed=embed)
+
+# Track live status between background task runs
+was_live = False
+
+@tasks.loop(minutes=1)
+async def background_task():
+    # Check if configured streamer is live every 5 minutes and send notifications.
+    global was_live
+    channel = bot.get_channel(CHANNEL_ID)
+    if not channel:
+        return
+
+    logger.info("Checking stream status...")
+    stream = twitchGet.is_streamer_live(streamer_name)
+    
+    # Only notify if streamer just went live (wasn't live before)
+    if stream and not was_live:
+        thumbnail = stream["thumbnail_url"].replace("{width}", "800").replace("{height}", "500")
+        embed = discord.Embed(
+            title=f'🟢 {stream["user_name"]} IS LIVE 🟢',
+            description=stream.get("title", ""),
+            url=f'https://twitch.tv/{stream["user_name"].lower()}',
+            color=discord.Color.blurple()
+        )
+        embed.set_thumbnail(url=thumbnail)
+        embed.add_field(name="Game", value=stream.get("game_name", "Unknown"))
+        await channel.send(f"<@&{stream_notification_role_id}> wake up!", embed=embed)
+    
+    # Update previous state
+    was_live = bool(stream)
 
 async def rngen():
     import random
@@ -69,32 +115,11 @@ async def timeout_member(message: discord.Message, member: discord.Member, secon
     except discord.HTTPException as e:
         await message.channel.send(f"Failed to timeout user: {e}")
 
-"""async def is_streamer_live(interaction: discord.Interaction, streamer: str):
-    stream = twitchGet.is_streamer_live(streamer)
-    thumbnail = stream["thumbnail_url"].replace("{width}", "800").replace("{height}", "500")
-    print(thumbnail)
-
-    embed = discord.Embed(title= f"🟢 {stream["user_name"]} IS LIVE 🟢", description=stream["title"], url=f"https://twitch.tv/{stream["user_name"].lower()}", color=discord.Color.blurple())
-    embed.set_thumbnail(url=thumbnail)
-    embed.add_field(name="Game", value= stream["game_name"])
-    await interaction.response.send_message(embed=embed)
-
-@tasks.loop(minutes=5)
-async def background_task():
-    channel = bot.get_channel(CHANNEL_ID)  # Uses the channel ID we defined above
-    if role and channel:
-        logger.info("Running 5-minute background task")
-        await channel.send("This message appears every 5 minutes")
-    if is_streamer_live == 1:
-        await is_streamer_live(channel, "streamer_name")
-        await bot.get_channel(CHANNEL_ID).send(f"<@&{stream_notification_role_id}> wake up!")"""
-
 @bot.event
 async def on_ready():
     print(f"Bot Ready: {bot.user.name}; {bot.user.id}")
     # Start the background task
-    #background_task.start()
-    
+    background_task.start()
 
 @bot.event
 async def on_message(message):
@@ -102,7 +127,7 @@ async def on_message(message):
     if message.author.bot:
         return
 
-    # Delete by exact content
+    # Delete glitch mentions with @
     if any(word in message.content.lower() for word in glitchvals) and "@" in message.content and await rngen() == 1:
         try:
             await message.delete()
@@ -115,10 +140,9 @@ async def on_message(message):
         except discord.HTTPException as e:
             logger.error(f"Failed to delete message: {e}")
 
-
     await bot.process_commands(message)
    
-   #replace fuck
+   # Respond to messages
     if "sex" in message.content.lower() and any(word in message.content.lower() for word in glitchbotnames) and await rngen() == 1:
         await message.channel.send(f"{catgif}")
         await message.channel.send(f"{message.author.mention} No")
